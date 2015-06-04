@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <Forms>
-    <Form Class="Window" LAnchorPoint="0" LAnchorOffset="84" TAnchorPoint="0" TAnchorOffset="63" RAnchorPoint="0" RAnchorOffset="1104" BAnchorPoint="0" BAnchorOffset="720" RelativeToClient="1" Font="Default" Text="" BGColor="UI_WindowBGDefault" TextColor="UI_WindowTextDefault" Template="CRB_Datachron" TooltipType="OnCursor" Name="Chomp" Border="1" Picture="1" SwallowMouseClicks="1" Moveable="1" Escapable="1" Overlapped="1" UseTemplateBG="1"/>
+    <Form Class="Window" LAnchorPoint="0" LAnchorOffset="84" TAnchorPoint="0" TAnchorOffset="63" RAnchorPoint="0" RAnchorOffset="1104" BAnchorPoint="0" BAnchorOffset="720" RelativeToClient="1" Font="Default" Text="" BGColor="UI_WindowBGDefault" TextColor="UI_WindowTextDefault" Template="CRB_Datachron" TooltipType="OnCursor" Name="Chomp" Border="1" Picture="1" SwallowMouseClicks="1" Moveable="1" Escapable="1" Overlapped="1" UseTemplateBG="1" TooltipColor="" Tooltip="">
+        <Control Class="Window" LAnchorPoint="0" LAnchorOffset="5" TAnchorPoint="1" TAnchorOffset="-25" RAnchorPoint="0" RAnchorOffset="500" BAnchorPoint="1" BAnchorOffset="-5" RelativeToClient="1" Font="Default" Text="" BGColor="UI_WindowBGDefault" TextColor="UI_WindowTextDefault" Template="Default" TooltipType="OnCursor" Name="Debug" TooltipColor="" TextId="ChatType_Debug" DT_VCENTER="1"/>
+    </Form>
 </Forms>
