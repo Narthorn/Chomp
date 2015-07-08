@@ -8,6 +8,7 @@ Chomp = {
 	GameVars = {
 		fClock = 0.1,     -- max messages sent : 25 per second
 		StartRadius = 15,
+		StartSpeed = 0.05,
 	},
 	bDebug = true,
 	tPlayers = {},
@@ -46,24 +47,30 @@ end
 -- Player class
 
 Chomp.Player = {
-	UpdatePos = function(self, x, y)
-		self.posX = x
-		self.posY = y
+	UpdatePos = function(self, pos)
+		self.pos = pos or self.pos
+		local x = self.pos.x
+		local y = self.pos.y
 		local r = self.radius
 		Chomp:UpdatePixie(self.pixies.circle, {loc = {nOffsets = {x-r,y-r,x+r,y+r}}})
+	end,
+	MoveTowards = function(self, target)
+		local target = Vector2.New(target)
+		local speed = self.speed
+		self:UpdatePos(self.pos * (1-speed) + target * speed)
 	end,
 	new = function(x,y,cr)
 		local player = {
 			radius = Chomp.GameVars.StartRadius,
-			posX = x,
-			posY = y,
+			speed = Chomp.GameVars.StartSpeed,
+			pos = Vector2.New(x,y),
 			pixies = {
 				circle = Chomp:AddPixie({strSprite = "WhiteCircle", cr = cr or Chomp.Utils.RandomColor(), loc = {nOffsets = {0,0,0,0}}}),
 			},
 		}
 		
 		setmetatable(player, {__index = Chomp.Player}) 
-		player:UpdatePos(x,y)
+		player:UpdatePos()
 		
 		return player
 	end,
@@ -92,19 +99,13 @@ end
 -- Main loop
 
 function Chomp:OnFrame()
-	local mouse = Vector2.New(self.wndMain:GetMouse())
-	local player = self.player
-	local pos = Vector2.New(player.posX, player.posY)
-	
-	local fSpeed = 0.05
-	local newpos = pos * (1-fSpeed) + mouse * fSpeed
-
+	local mouse = self.wndMain:GetMouse()
 	self.wndDebug:SetText("x: "..mouse.x.." - y: "..mouse.y)
-	self.player:UpdatePos(newpos.x, newpos.y)
+	self.player:MoveTowards(mouse)
 end
 
 function Chomp:OnUpdate()
-	self:SendPos(self.player.posX, self.player.posY)
+	self:SendPos(self.player.pos)
 end
 
 -- Addon Communication
@@ -118,7 +119,7 @@ function Chomp:OnMessageReceived(channel, strMessage, strSender)
 		if strMessage == "" then
 			player:Destroy()
 		else
-			player:UpdatePos(x,y)
+			player:UpdatePos(Vector2.New(x,y))
 		end
 	end
 end
@@ -130,8 +131,8 @@ function Chomp:OnJoinResult(...)       self.Utils.Debug("Join",      arg) end
 function Chomp:OnMessageThrottled(...) self.Utils.Debug("Throttled", arg) end
 function Chomp:OnMessageSent(...)      self.Utils.Debug("Sent",      arg) end
 
-function Chomp:SendPos(x,y)
-	self.channel:SendMessage(string.format("%4u%4u", x, y))
+function Chomp:SendPos(pos)
+	self.channel:SendMessage(string.format("%4u%4u", pos.x, pos.y))
 end
 
 function Chomp:SendQuit()
