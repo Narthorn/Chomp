@@ -92,9 +92,15 @@ end
 -- Main loop
 
 function Chomp:OnFrame()
-	local tMouse = self.wndMain:GetMouse()
-	self.wndDebug:SetText("x: "..tMouse.x.." - y: "..tMouse.y)
-	self.player:UpdatePos(tMouse.x, tMouse.y)
+	local mouse = Vector2.New(self.wndMain:GetMouse())
+	local player = self.player
+	local pos = Vector2.New(player.posX, player.posY)
+	
+	local fSpeed = 0.05
+	local newpos = pos * (1-fSpeed) + mouse * fSpeed
+
+	self.wndDebug:SetText("x: "..mouse.x.." - y: "..mouse.y)
+	self.player:UpdatePos(newpos.x, newpos.y)
 end
 
 function Chomp:OnUpdate()
