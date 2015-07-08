@@ -29,9 +29,8 @@ end
 
 -- UI Drawing functions
 
-function Chomp:AddPixie(tOptions)
-	return self.wndMain:AddPixie(tOptions)
-end
+function Chomp:AddPixie(tOptions) return self.wndMain:AddPixie(tOptions) end
+function Chomp:DestroyPixie(idPixie) self.wndMain:DestroyPixie(idPixie) end
 
 function Chomp:UpdatePixie(idPixie, tOptions)
 	local tPixieOptions = self.wndMain:GetPixieInfo(idPixie)
@@ -68,6 +67,9 @@ Chomp.Player = {
 		
 		return player
 	end,
+	Destroy = function(self)
+		Chomp:DestroyPixie(self.pixies.circle)
+	end,
 }
 
 -- Game Logic
@@ -76,6 +78,15 @@ function Chomp:StartGame()
 	self.player = self.Player.new(self:GetCanvasCenter())
 	Apollo.RegisterEventHandler("NextFrame", "OnFrame", self)
 	self.tmrClock = ApolloTimer.Create(self.GameVars.fClock, true, "OnUpdate", self)
+end
+
+function Chomp:StopGame()
+	Apollo.RemoveEventHandler("NextFrame", self)
+	self.tmrClock:Stop()
+	self.tmrClock = nil
+	self.player:Destroy()
+	self.player = nil
+	self:SendQuit()
 end
 
 -- Main loop
@@ -94,10 +105,15 @@ end
 
 function Chomp:OnMessageReceived(channel, strMessage, strSender)
 	local x,y = tonumber(strMessage:sub(1,4)),tonumber(strMessage:sub(5,8))
-	if not self.tPlayers[strSender] then
+	local player = self.tPlayers[strSender]
+	if not player then
 		self.tPlayers[strSender] = Chomp.Player.new(x,y)
 	else
-		self.tPlayers[strSender]:UpdatePos(x,y)
+		if strMessage == "" then
+			player:Destroy()
+		else
+			player:UpdatePos(x,y)
+		end
 	end
 end
 
@@ -112,11 +128,19 @@ function Chomp:SendPos(x,y)
 	self.channel:SendMessage(string.format("%4u%4u", x, y))
 end
 
+function Chomp:SendQuit()
+	self.channel:SendMessage("")
+end
+
 -- UI Event Handlers
 
 function Chomp:OnSlashCommand() 
 	self.wndMain:Invoke()
 	self:StartGame()
+end
+
+function Chomp:OnCloseWindow()
+	self:StopGame()
 end
 
 -- Utils
